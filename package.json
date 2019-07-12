@@ -1,0 +1,7 @@
+{
+  "name": "mine-sweeper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "hisland <hisland@qq.com>",
+  "license": "MIT"
+}

@@ -100,9 +100,42 @@ export default class Mine {
     } else if (one1.opened) {
       // 已经打开
     } else {
+      let deepCount2 = 0
+      const { checkSet } = this
+      // 批量递归, 递归函数调用次数明显少很多
+      const deepCheck = indexList => {
+        deepCount2++
+        for (const index2 of indexList) {
+          if (checkSet.has(index2)) continue // 注意不是 break
+          checkSet.add(index2)
+          const one2 = cells[index2]
+          if (!one2.opened) {
+            one2.opened = true
+            if (one2.value === 0) {
+              const indexList = this.aroundIndex(index2)
+              deepCheck(indexList)
+            }
+          }
+        }
+      }
+      deepCheck([index])
+      console.log('deepCheck', deepCount2)
+      this.checkAll()
+    }
+  }
+  open1(index) {
+    const { cells } = this
+    const one1 = cells[index]
+    if (one1.value === 9) {
+      // 失败, 雷
+      this.surrender()
+    } else if (one1.opened) {
+      // 已经打开
+    } else {
       let deepCount1 = 0
       let deepCount2 = 0
       const { checkSet } = this
+      // 单个递归, 递归函数会调用很多次
       const deepCheck = index2 => {
         deepCount1++
         if (checkSet.has(index2)) return

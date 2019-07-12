@@ -25,9 +25,9 @@ export default {
   data() {
     return {
       config: {
-        rows: 10,
-        cols: 20,
-        mines: 3,
+        rows: 20,
+        cols: 30,
+        mines: 30,
       },
       state: {},
     }

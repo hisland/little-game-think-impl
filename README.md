@@ -2,7 +2,7 @@
 
 运行方式
 
-```
+```shell
 # 全局安装 vue-cli 3.0
 yarn global add @vue/cli @vue/cli-service-global
 # 全局安装 sass-loader

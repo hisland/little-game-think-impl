@@ -56,10 +56,10 @@ export default class Mine {
       return 'fail'
     }
     this.snake.unshift(newHeadIndex)
-    if (newHeadIndex !== this.food) {
-      this.snake.pop()
-    } else {
+    if (newHeadIndex === this.food) {
       this.food = this.randomFood()
+    } else {
+      this.snake.pop()
     }
   }
 }

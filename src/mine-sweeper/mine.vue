@@ -27,7 +27,7 @@ export default {
       config: {
         rows: 20,
         cols: 30,
-        mines: 30,
+        mines: 100,
       },
       state: {},
     }

@@ -23,10 +23,14 @@
         <button @click="game.TryBlockRowCol()">1-9横竖宫唯一</button>
       </div>
       <div>
-        <button @click="game.TryMark()">标记</button>
+        <button @click="game.SetMark()">标记</button>
+        <button @click="game.ClearMark()">清除标记</button>
+        <button @click="game.TrimMark2Lock()">TrimMark2Lock</button>
+        <button @click="game.FillMarkOnlyOne()">FillMarkOnlyOne</button>
       </div>
     </div>
-    <input type="text" ref="text" @keyup="FillCell($event)" />
+
+    <input class="hiddenText" type="text" ref="text" @keydown="FillCell($event)" />
 
     <div class="sudokuWrap">
       <div class="cell first"></div>
@@ -53,7 +57,7 @@
             :key="index1"
             class="cell"
             :class="{hBold:(index1%3===0),vBold:(index0%3===0),currentCell:(vv1.index===current.index),currentLine:(vv1.row===current.row||vv1.col===current.col||vv1.block===current.block)}"
-            @click="SetCell(vv1, $event)"
+            @click="SetFocus(vv1, $event)"
           >
             <div class="val1" v-if="vv1.value">{{vv1.value}}</div>
             <div class="temp" v-else>
@@ -63,26 +67,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="cellWrap">
-      <div class="vLine1"></div>
-      <div class="vLine2"></div>
-      <div class="hLine1"></div>
-      <div class="hLine2"></div>
-      <div class="line">
-        <div class="cell axis"></div>
-        <div class="cell axis" v-for="(vv0, index0) in 9" :key="index0">{{vv0-1}}</div>
-      </div>
-      <div class="line" v-for="(vv0, index0) in game.rows" :key="index0">
-        <div class="cell axis">{{index0}}</div>
-        <div
-          class="cell"
-          v-for="(vv1, index1) in vv0"
-          :key="index1"
-          @click="SetCell(vv1, $event)"
-        >{{vv1.value}}</div>
       </div>
     </div>
   </div>
@@ -134,25 +118,57 @@ export default {
     resolve() {
       this.game.resolve()
     },
-    SetCell(cell, ee) {
+    SetFocus(cell, ee) {
       if (ee.shiftKey) {
         cell.value = null
-      } else {
-        this.current = cell
         this.$refs.text.value = ''
         this.$refs.text.focus()
+      } else {
+        this.SetCurrentCell(cell)
       }
+    },
+    SetCurrentCell(cell) {
+      this.current = cell
+      this.$refs.text.value = ''
+      this.$refs.text.focus()
     },
     FillCell(ee) {
       // console.log(ee)
-      if (ee.keyCode === 8) {
+      if (ee.keyCode === 9) {
+        const { index } = this.current
+        if (ee.shiftKey) {
+          if (index > 0) {
+            this.SetCurrentCell(this.game.cells[index - 1])
+          }
+        } else {
+          if (index < 80) {
+            this.SetCurrentCell(this.game.cells[index + 1])
+          }
+        }
+        ee.preventDefault()
+      } else if (ee.keyCode >= 37 && ee.keyCode <= 40) {
+        const { index } = this.current
+        const { keyCode } = ee
+        let newIndex
+        if (keyCode === 37) {
+          newIndex = index > 0 ? index - 1 : 80
+        } else if (keyCode === 39) {
+          newIndex = index < 80 ? index + 1 : 0
+        } else if (keyCode === 38) {
+          newIndex = index >= 9 ? index - 9 : index
+        } else if (keyCode === 40) {
+          newIndex = index <= 71 ? index + 9 : index
+        }
+        this.SetCurrentCell(this.game.cells[newIndex])
+        ee.preventDefault()
+      } else if (ee.keyCode === 8 || ee.keyCode === 32) {
         this.current.value = null
-        return
-      }
-      const val = ee.keyCode - 48
-      // console.log(val)
-      if (val > 0 && val < 10) {
-        this.current.value = val
+      } else {
+        const val = ee.keyCode - 48
+        // console.log(val)
+        if (val > 0 && val < 10) {
+          this.game.SetValue(this.current, val)
+        }
       }
     },
   },
@@ -183,6 +199,7 @@ $border-color2: #aaabac;
     justify-content: center;
     &.first {
       border: 1px solid $border-color1;
+      background: #eee;
     }
     &.hBold {
       border-left: 3px solid $border-color1;
@@ -204,7 +221,7 @@ $border-color2: #aaabac;
     width: $size * 9;
     flex: 1 1 auto;
     display: flex;
-    color: #999;
+    color: #ddd;
     .cell {
       background: #eee;
       border-top: 1px solid $border-color2;
@@ -216,7 +233,7 @@ $border-color2: #aaabac;
     width: $size;
     height: $size * 9;
     flex: 0 0 auto;
-    color: #999;
+    color: #ddd;
     .cell {
       background: #eee;
       border-right: 1px solid $border-color2;
@@ -267,61 +284,10 @@ $border-color2: #aaabac;
   }
 }
 
-.cellWrap {
-  position: relative;
-  .vLine1 {
-    position: absolute;
-    background: green;
-    width: 196px;
-    height: 2px;
-    top: 86px;
-    left: 22px;
-  }
-  .vLine2 {
-    position: absolute;
-    background: green;
-    width: 196px;
-    height: 2px;
-    top: 152px;
-    left: 22px;
-  }
-  .hLine1 {
-    position: absolute;
-    background: green;
-    width: 2px;
-    height: 196px;
-    left: 86px;
-    top: 22px;
-  }
-  .hLine2 {
-    position: absolute;
-    background: green;
-    width: 2px;
-    height: 196px;
-    left: 152px;
-    top: 22px;
-  }
-  .line {
-    display: flex;
-  }
-  .cell {
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    text-align: center;
-    box-sizing: border-box;
-    cursor: default;
-    user-select: none;
-    background-color: #999;
-    margin: 0 2px 2px 0;
-    &.has {
-      background-color: green;
-    }
-    &.axis {
-      background-color: #eee;
-      color: #999;
-    }
-  }
+.hiddenText {
+  position: absolute;
+  top: -1000px;
+  opacity: 0;
 }
 
 .history {

@@ -60,7 +60,7 @@ export default class Mine {
       const ss = new Set(list.map((vv) => vv.value))
       for (let ii = 1; ii < 10; ii++) {
         if (!ss.has(ii)) {
-          one.value = ii
+          this.SetValue(one, ii)
           return
         }
       }
@@ -96,7 +96,7 @@ export default class Mine {
             if (cell2.value) {
               nums.delete(cell2.value)
               if (nums.size === 1) {
-                cell.value = nums.values().next().value
+                this.SetValue(cell, nums.values().next().value)
                 continue AllCell
               }
             }
@@ -117,13 +117,13 @@ export default class Mine {
           const b_row = Math.floor(jj / 3)
           const b_col = jj % 3
 
-          function test_rest() {
+          const test_rest = () => {
             const rest_empty = [...nums.values()]
               .map((vv) => block[vv])
               .filter((vv) => vv.value === null)
             if (rest_empty.length === 1) {
               console.log('唯一', ii, jj, nums.values(), rest_empty)
-              rest_empty[0].value = ii
+              this.SetValue(rest_empty[0], ii)
               return true
             } else if (rest_empty.length === 0) {
               console.log('错误了', ii, jj, rest_empty)
@@ -199,8 +199,16 @@ export default class Mine {
 
     console.log('done TryBlockRowCol')
   }
-  TryMark() {
-    AllCell: for (const cell of this.cells) {
+  ClearMark() {
+    for (const cell of this.cells) {
+      if (!cell.value) {
+        cell.tmpValues = new Set()
+      }
+    }
+    console.log('done ClearMark')
+  }
+  SetMark() {
+    for (const cell of this.cells) {
       if (!cell.value) {
         const block = this.blocks[cell.block]
         const row = this.rows[cell.row]
@@ -210,39 +218,79 @@ export default class Mine {
           for (const cell2 of list) {
             if (cell2.value) {
               nums.delete(cell2.value)
-              if (nums.size === 1) {
-                cell.value = nums.values().next().value
-                continue AllCell
-              }
             }
           }
         }
         cell.tmpValues = nums
       }
     }
-    console.log('done TryMark')
+    console.log('done SetMark')
   }
-  TryBlockRowCol2() {
-    const { blocks } = this
-    for (let ii = 1; ii <= 9; ii++) {
-      const nums = new Set([0, 1, 2])
-      const kk = [blocks[0], blocks[1], blocks[2]]
-      const nons = []
-      for (const block of kk) {
-        const index = block.findIndex((vv) => vv.value === ii)
-        if (index !== -1) {
-          const row = Math.floor(index / 3)
-          nums.delete(row)
-        } else {
-          nons.push(block)
+  TrimMark2Lock() {
+    for (const [name, list3] of [
+      ['block', this.blocks],
+      ['row', this.rows],
+      ['col', this.cols],
+    ]) {
+      for (const list of list3) {
+        const emptyList = list.filter((vv) => !vv.value)
+        const empty2ValueList = emptyList.filter(
+          (vv) => vv.tmpValues.size === 2
+        )
+        // const empty2ValueList = []
+        // for (const vv of emptyList) {
+        //   if (vv.tmpValues.size === 2) {
+        //     empty2ValueList.push(vv)
+        //   }
+        // }
+        const sorted = empty2ValueList
+          .map((vv) => [vv, [...vv.tmpValues.values()].join('-')])
+          .sort(([, aa], [, bb]) => aa.localeCompare(bb))
+        for (let ii = 0; ii < sorted.length - 1; ii++) {
+          const [vv1, aa] = sorted[ii]
+          const [vv2, bb] = sorted[ii + 1]
+          if (aa === bb) {
+            for (const vv4 of emptyList) {
+              if (vv4 === vv1 || vv4 === vv2) {
+                continue
+              } else {
+                for (const num of vv1.tmpValues) {
+                  vv4.tmpValues.delete(num)
+                }
+              }
+            }
+          } else {
+            console.log(name, aa, bb)
+          }
         }
       }
-      if (nons.length === 1) {
-        const row = nums.values().next().value
+    }
+    console.log('done TrimMark2Lock')
+  }
+  FillMarkOnlyOne() {
+    for (const cell of this.cells) {
+      if (!cell.value) {
+        if (cell.tmpValues.size === 1) {
+          this.SetValue(cell, cell.tmpValues.values().next().value)
+        }
       }
     }
+    console.log('done FillMarkOnlyOne')
+  }
+  SetValue(cell, value) {
+    cell.value = value
 
-    console.log('done TryBlockRowCol')
+    const block = this.blocks[cell.block]
+    const row = this.rows[cell.row]
+    const col = this.cols[cell.col]
+    for (const list of [block, row, col]) {
+      for (const cell2 of list) {
+        if (!cell2.value) {
+          cell2.tmpValues.delete(value)
+        }
+      }
+    }
+    console.log('SetValue: ', cell, value)
   }
   validate() {
     for (const [name, list3] of [

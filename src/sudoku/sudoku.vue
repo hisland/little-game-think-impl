@@ -2,26 +2,39 @@
   <div class="wrap" v-if="game">
     <div class="history">
       <div v-for="(vv0, index0) in history" :key="index0" class="line">
-        <span @click="Restore(vv0)">{{vv0}}</span>
+        <span @click="Restore(vv0)">{{index0+1}}: {{vv0}}</span>
         <span class="del" @click="DelHistory(index0)">x</span>
       </div>
     </div>
     <div>
       <div>
-        <button @click="init()">重来</button>
+        <button @click="init()">全空白</button>
         <button @click="resolve()">解题</button>
         <button @click="SaveLocal()">保存</button>
+        <button @click="game.validate()">验证</button>
       </div>
       <div>
-        <button @click="game.TryAllRestOne()">3个唯一</button>
-        <button @click="game.TryBlocks()">块唯一</button>
-        <button @click="game.TryRows()">行唯一</button>
-        <button @click="game.TryCols()">列唯一</button>
+        <button @click="game.TryBlocks()">单宫唯一</button>
+        <button @click="game.TryRows()">单行唯一</button>
+        <button @click="game.TryCols()">单列唯一</button>
+        <button @click="game.TryCells()">[宫行列]同时唯一</button>
+      </div>
+      <div>
+        <button @click="game.TryBlockRowCol()">1-9横竖宫唯一</button>
       </div>
     </div>
     <input type="text" ref="text" @keyup="FillCell($event)" />
-    <div class="cellWrap" :style="{ width: wrapWidth }">
+    <div class="cellWrap">
+      <div class="vLine1"></div>
+      <div class="vLine2"></div>
+      <div class="hLine1"></div>
+      <div class="hLine2"></div>
+      <div class="line">
+        <div class="cell axis"></div>
+        <div class="cell axis" v-for="(vv0, index0) in 9" :key="index0">{{vv0-1}}</div>
+      </div>
       <div class="line" v-for="(vv0, index0) in game.rows" :key="index0">
+        <div class="cell axis">{{index0}}</div>
         <div
           class="cell"
           v-for="(vv1, index1) in vv0"
@@ -38,12 +51,12 @@ export default {
   components: {},
   data() {
     const LocalHistory = localStorage.getItem('sudoku-history')
-    const history = LocalHistory ? LocalHistory.split('|||') : []
+    const history = LocalHistory
+      ? LocalHistory.split('|||')
+      : [
+          '3--5-2---9-6----9-3-1-8--2--4---5-6-9-7---9-7--4---3-8-------2----8-5-2--3-1-6-7------2-----2--4--9-3-1-5-6-1--7-6----4-9',
+        ]
     return {
-      config: {
-        rows: 20,
-        cols: 10,
-      },
       game: null,
       current: null,
       history,
@@ -51,11 +64,7 @@ export default {
   },
   watch: {},
   props: {},
-  computed: {
-    wrapWidth() {
-      return this.config.cols * (20 + 2) + 'px'
-    },
-  },
+  computed: {},
   methods: {
     SaveLocal() {
       const value = this.game.cells.map((vv) => vv.value).join('-')
@@ -107,11 +116,46 @@ export default {
   },
   mounted() {
     this.init()
+
+    window.kkk = this
   },
 }
 </script>
 <style scoped lang="scss">
 .cellWrap {
+  position: relative;
+  .vLine1 {
+    position: absolute;
+    background: green;
+    width: 196px;
+    height: 2px;
+    top: 86px;
+    left: 22px;
+  }
+  .vLine2 {
+    position: absolute;
+    background: green;
+    width: 196px;
+    height: 2px;
+    top: 152px;
+    left: 22px;
+  }
+  .hLine1 {
+    position: absolute;
+    background: green;
+    width: 2px;
+    height: 196px;
+    left: 86px;
+    top: 22px;
+  }
+  .hLine2 {
+    position: absolute;
+    background: green;
+    width: 2px;
+    height: 196px;
+    left: 152px;
+    top: 22px;
+  }
 }
 .line {
   display: flex;
@@ -129,6 +173,10 @@ export default {
   &.has {
     background-color: green;
   }
+  &.axis {
+    background-color: #eee;
+    color: #999;
+  }
 }
 
 .history {
@@ -136,7 +184,8 @@ export default {
   top: 0;
   right: 0;
   .line {
-    width: 100px;
+    font-family: monospace;
+    width: 120px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

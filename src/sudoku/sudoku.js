@@ -199,6 +199,29 @@ export default class Mine {
 
     console.log('done TryBlockRowCol')
   }
+  TryMark() {
+    AllCell: for (const cell of this.cells) {
+      if (!cell.value) {
+        const block = this.blocks[cell.block]
+        const row = this.rows[cell.row]
+        const col = this.cols[cell.col]
+        const nums = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        for (const list of [block, row, col]) {
+          for (const cell2 of list) {
+            if (cell2.value) {
+              nums.delete(cell2.value)
+              if (nums.size === 1) {
+                cell.value = nums.values().next().value
+                continue AllCell
+              }
+            }
+          }
+        }
+        cell.tmpValues = nums
+      }
+    }
+    console.log('done TryMark')
+  }
   TryBlockRowCol2() {
     const { blocks } = this
     for (let ii = 1; ii <= 9; ii++) {

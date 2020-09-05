@@ -22,8 +22,50 @@
       <div>
         <button @click="game.TryBlockRowCol()">1-9横竖宫唯一</button>
       </div>
+      <div>
+        <button @click="game.TryMark()">标记</button>
+      </div>
     </div>
     <input type="text" ref="text" @keyup="FillCell($event)" />
+
+    <div class="sudokuWrap">
+      <div class="cell first"></div>
+      <div class="hLine">
+        <div
+          class="cell axis"
+          :class="{hBold:(index0%3===0)}"
+          v-for="(vv0, index0) in 9"
+          :key="index0"
+        >{{vv0-1}}</div>
+      </div>
+      <div class="vLine">
+        <div
+          class="cell axis"
+          :class="{vBold:(index0%3===0)}"
+          v-for="(vv0, index0) in 9"
+          :key="index0"
+        >{{vv0-1}}</div>
+      </div>
+      <div class="grid">
+        <div class="line" v-for="(vv0, index0) in game.rows" :key="index0">
+          <div
+            v-for="(vv1, index1) in vv0"
+            :key="index1"
+            class="cell"
+            :class="{hBold:(index1%3===0),vBold:(index0%3===0),currentCell:(vv1.index===current.index),currentLine:(vv1.row===current.row||vv1.col===current.col||vv1.block===current.block)}"
+            @click="SetCell(vv1, $event)"
+          >
+            <div class="val1" v-if="vv1.value">{{vv1.value}}</div>
+            <div class="temp" v-else>
+              <div class="val2" v-for="(vv0, index0) in 9" :key="index0">
+                <span v-if="vv1.tmpValues.has(vv0)">{{vv0}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cellWrap">
       <div class="vLine1"></div>
       <div class="vLine2"></div>
@@ -58,7 +100,7 @@ export default {
         ]
     return {
       game: null,
-      current: null,
+      current: {},
       history,
     }
   },
@@ -122,6 +164,109 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+$border-color1: #2b2c2e;
+$border-color2: #aaabac;
+
+.sudokuWrap {
+  margin: 10px;
+  $size: 48px;
+  display: flex;
+  flex-wrap: wrap;
+  width: $size * 10;
+  .cell {
+    width: $size;
+    height: $size;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.first {
+      border: 1px solid $border-color1;
+    }
+    &.hBold {
+      border-left: 3px solid $border-color1;
+      margin-left: -1px;
+    }
+    &.vBold {
+      border-top: 3px solid $border-color1;
+      margin-top: -1px;
+    }
+    &.currentLine {
+      background: #e3eef4;
+    }
+    &.currentCell {
+      background: #bae0f9;
+    }
+  }
+  .hLine {
+    height: $size;
+    width: $size * 9;
+    flex: 1 1 auto;
+    display: flex;
+    color: #999;
+    .cell {
+      background: #eee;
+      border-top: 1px solid $border-color2;
+      border-right: 1px solid $border-color2;
+      border-bottom: 1px solid $border-color2;
+    }
+  }
+  .vLine {
+    width: $size;
+    height: $size * 9;
+    flex: 0 0 auto;
+    color: #999;
+    .cell {
+      background: #eee;
+      border-right: 1px solid $border-color2;
+      border-bottom: 1px solid $border-color2;
+      border-left: 1px solid $border-color2;
+    }
+  }
+  .grid {
+    flex: 1 1 auto;
+    .line {
+      display: flex;
+    }
+    .cell {
+      position: relative;
+      border-bottom: 1px solid $border-color2;
+      border-right: 1px solid $border-color2;
+    }
+    .val1 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .temp {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      .val2 {
+        width: 1/3 * 100%;
+        height: 1/3 * 100%;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: $border-color2;
+      }
+    }
+  }
+}
+
 .cellWrap {
   position: relative;
   .vLine1 {
@@ -156,26 +301,26 @@ export default {
     left: 152px;
     top: 22px;
   }
-}
-.line {
-  display: flex;
-}
-.cell {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  box-sizing: border-box;
-  cursor: default;
-  user-select: none;
-  background-color: #999;
-  margin: 0 2px 2px 0;
-  &.has {
-    background-color: green;
+  .line {
+    display: flex;
   }
-  &.axis {
-    background-color: #eee;
-    color: #999;
+  .cell {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: default;
+    user-select: none;
+    background-color: #999;
+    margin: 0 2px 2px 0;
+    &.has {
+      background-color: green;
+    }
+    &.axis {
+      background-color: #eee;
+      color: #999;
+    }
   }
 }
 

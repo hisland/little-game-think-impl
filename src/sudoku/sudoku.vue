@@ -2,7 +2,7 @@
   <div class="wrap" v-if="game">
     <div class="history">
       <div v-for="(vv0, index0) in history" :key="index0" class="line">
-        <span @click="Restore(vv0)">{{index0+1}}: {{vv0}}</span>
+        <span @click="RestoreHistory(vv0)">{{index0+1}}. {{vv0}}</span>
         <span class="del" @click="DelHistory(index0)">x</span>
       </div>
     </div>
@@ -10,7 +10,8 @@
       <div>
         <button @click="init()">全空白</button>
         <button @click="resolve()">解题</button>
-        <button @click="SaveLocal()">保存</button>
+        <input type="text" v-model.trim="prefix" placeholder="名字备注" />
+        <button @click="SaveCurrent()">保存</button>
         <button @click="game.validate()">验证</button>
       </div>
       <div>
@@ -83,6 +84,7 @@ export default {
           '3--5-2---9-6----9-3-1-8--2--4---5-6-9-7---9-7--4---3-8-------2----8-5-2--3-1-6-7------2-----2--4--9-3-1-5-6-1--7-6----4-9',
         ]
     return {
+      prefix: '',
       game: null,
       current: {},
       history,
@@ -92,19 +94,25 @@ export default {
   props: {},
   computed: {},
   methods: {
-    SaveLocal() {
-      const value = this.game.cells.map((vv) => vv.value).join('-')
-      this.history.push(value)
-      localStorage.setItem('sudoku-history', this.history.join('|||'))
+    SaveCurrent() {
+      const qq = this.game.cells.map((vv) => vv.value).join('-')
+      const aa = this.prefix ? this.prefix + ': ' + qq : qq
+      this.history.push(aa)
+      this.SaveLocal()
     },
     DelHistory(index) {
       this.history.splice(index, 1)
+      this.SaveLocal()
+    },
+    SaveLocal() {
       localStorage.setItem('sudoku-history', this.history.join('|||'))
     },
-    Restore(vv0) {
+    RestoreHistory(vv0) {
+      const [aa, bb] = vv0.split(': ')
+      const str = bb || aa
       this.game = new GameCore()
       const { cells } = this.game
-      vv0.split('-').forEach((vv1, index1) => {
+      str.split('-').forEach((vv1, index1) => {
         if (vv1 === '') {
           cells[index1].value = null
         } else {

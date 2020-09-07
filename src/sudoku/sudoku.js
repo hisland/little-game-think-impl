@@ -55,9 +55,20 @@ export default class Mine {
   }
   resolve() {}
   FillOneRest(list) {
-    const [one, two] = list.filter((vv) => !vv.value)
-    if (!two && one) {
-      const ss = new Set(list.map((vv) => vv.value))
+    let one
+    let ss = new Set()
+    for (const vv of list) {
+      if (!vv.value) {
+        if (one) {
+          return // 多个未填, 直接退出
+        } else {
+          one = vv
+        }
+      } else {
+        ss.add(vv.value)
+      }
+    }
+    if (one) {
       for (let ii = 1; ii < 10; ii++) {
         if (!ss.has(ii)) {
           this.SetValue(one, ii)
@@ -66,26 +77,26 @@ export default class Mine {
       }
     }
   }
-  TryBlocks() {
+  TryBlocksOnlyOne() {
     for (const block of this.blocks) {
       this.FillOneRest(block)
     }
-    console.log('done TryBlocks')
+    console.log('done TryBlocksOnlyOne')
   }
-  TryRows() {
+  TryRowsOnlyOne() {
     for (const line of this.rows) {
       this.FillOneRest(line)
     }
-    console.log('done TryRows')
+    console.log('done TryRowsOnlyOne')
   }
-  TryCols() {
+  TryColsOnlyOne() {
     for (const line of this.cols) {
       this.FillOneRest(line)
     }
-    console.log('done TryCols')
+    console.log('done TryColsOnlyOne')
   }
-  TryCells() {
-    AllCell: for (const cell of this.cells) {
+  TryCellsOnlyOne() {
+    LOOP_ALL_CELL: for (const cell of this.cells) {
       if (!cell.value) {
         const block = this.blocks[cell.block]
         const row = this.rows[cell.row]
@@ -97,16 +108,16 @@ export default class Mine {
               nums.delete(cell2.value)
               if (nums.size === 1) {
                 this.SetValue(cell, nums.values().next().value)
-                continue AllCell
+                continue LOOP_ALL_CELL
               }
             }
           }
         }
       }
     }
-    console.log('done TryCells')
+    console.log('done TryCellsOnlyOne')
   }
-  TryBlockRowCol() {
+  TryBlockCross() {
     const { blocks } = this
     for (let ii = 1; ii <= 9; ii++) {
       LOOP_BLOCKS: for (let jj = 0; jj <= 8; jj++) {
@@ -135,18 +146,14 @@ export default class Mine {
             continue LOOP_BLOCKS
           }
 
-          const row_other_2 =
+          const row_other_2_block =
             b_col === 0
               ? [blocks[b_row * 3 + b_col + 1], blocks[b_row * 3 + b_col + 2]]
               : b_col === 1
               ? [blocks[b_row * 3 + b_col - 1], blocks[b_row * 3 + b_col + 1]]
               : [blocks[b_row * 3 + b_col - 2], blocks[b_row * 3 + b_col - 1]]
-          // console.log(
-          //   'row_other_2',
-          //   row_other_2.map((vv) => vv[0].block)
-          // )
 
-          for (const block2 of row_other_2) {
+          for (const block2 of row_other_2_block) {
             const index = block2.findIndex((vv) => vv.value === ii)
             if (index !== -1) {
               const s_row = Math.floor(index / 3)
@@ -160,7 +167,7 @@ export default class Mine {
             }
           }
 
-          const col_other_2 =
+          const col_other_2_block =
             b_row === 0
               ? [
                   blocks[(b_row + 1) * 3 + b_col],
@@ -175,12 +182,8 @@ export default class Mine {
                   blocks[(b_row - 2) * 3 + b_col],
                   blocks[(b_row - 1) * 3 + b_col],
                 ]
-          // console.log(
-          //   'col_other_2',
-          //   col_other_2.map((vv) => vv[0].block)
-          // )
 
-          for (const block2 of col_other_2) {
+          for (const block2 of col_other_2_block) {
             const index = block2.findIndex((vv) => vv.value === ii)
             if (index !== -1) {
               const s_col = index % 3
@@ -197,13 +200,11 @@ export default class Mine {
       }
     }
 
-    console.log('done TryBlockRowCol')
+    console.log('done TryBlockCross')
   }
   ClearMark() {
     for (const cell of this.cells) {
-      if (!cell.value) {
-        cell.tmpValues = new Set()
-      }
+      cell.tmpValues = new Set()
     }
     console.log('done ClearMark')
   }
@@ -226,7 +227,7 @@ export default class Mine {
     }
     console.log('done SetMark')
   }
-  TrimMark2Lock() {
+  TrimMarkNakedPair() {
     for (const [name, list3] of [
       ['block', this.blocks],
       ['row', this.rows],
@@ -265,17 +266,15 @@ export default class Mine {
         }
       }
     }
-    console.log('done TrimMark2Lock')
+    console.log('done TrimMarkNakedPair')
   }
-  FillMarkOnlyOne() {
+  FillNakedSingle() {
     for (const cell of this.cells) {
-      if (!cell.value) {
-        if (cell.tmpValues.size === 1) {
-          this.SetValue(cell, cell.tmpValues.values().next().value)
-        }
+      if (!cell.value && cell.tmpValues.size === 1) {
+        this.SetValue(cell, cell.tmpValues.values().next().value)
       }
     }
-    console.log('done FillMarkOnlyOne')
+    console.log('done FillNakedSingle')
   }
   SetValue(cell, value) {
     cell.value = value
@@ -321,9 +320,9 @@ export default class Mine {
     console.log('done validate')
   }
   TryAllRestOne() {
-    this.TryBlocks()
-    this.TryRows()
-    this.TryCols()
+    this.TryBlocksOnlyOne()
+    this.TryRowsOnlyOne()
+    this.TryColsOnlyOne()
   }
   GetBlocks() {
     const { cells } = this

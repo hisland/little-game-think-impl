@@ -15,19 +15,19 @@
         <button @click="game.validate()">验证</button>
       </div>
       <div>
-        <button @click="game.TryBlocks()">单宫唯一</button>
-        <button @click="game.TryRows()">单行唯一</button>
-        <button @click="game.TryCols()">单列唯一</button>
-        <button @click="game.TryCells()">[宫行列]同时唯一</button>
+        <button @click="game.TryBlocksOnlyOne()">单宫唯一</button>
+        <button @click="game.TryRowsOnlyOne()">单行唯一</button>
+        <button @click="game.TryColsOnlyOne()">单列唯一</button>
+        <button @click="game.TryCellsOnlyOne()">[宫行列]同时唯一</button>
       </div>
       <div>
-        <button @click="game.TryBlockRowCol()">1-9横竖宫唯一</button>
+        <button @click="game.TryBlockCross()">1-9横竖宫唯一</button>
       </div>
       <div>
         <button @click="game.SetMark()">标记</button>
         <button @click="game.ClearMark()">清除标记</button>
-        <button @click="game.TrimMark2Lock()">TrimMark2Lock</button>
-        <button @click="game.FillMarkOnlyOne()">FillMarkOnlyOne</button>
+        <button @click="game.TrimMarkNakedPair()">显性数对2对</button>
+        <button @click="game.FillNakedSingle()">填写标记唯余</button>
       </div>
     </div>
 

@@ -32,10 +32,10 @@ const blocks = [
 export default class Mine {
   constructor() {
     this.cells = []
+    this.blocks = []
+    this.rows = []
+    this.cols = []
     this.InitCells()
-    this.blocks = this.GetBlocks()
-    this.rows = this.GetRows()
-    this.cols = this.GetCols()
     // console.log(this)
   }
   InitCells() {
@@ -52,6 +52,9 @@ export default class Mine {
       }
     }
     this.cells = cells
+    this.blocks = this.GetBlocks()
+    this.rows = this.GetRows()
+    this.cols = this.GetCols()
   }
   resolve() {}
   FillOneRest(list) {
@@ -275,6 +278,28 @@ export default class Mine {
       }
     }
     console.log('done FillNakedSingle')
+  }
+  Rotate(clockwise = true) {
+    const rs = []
+    if (clockwise) {
+      for (const list of this.cols) {
+        for (let ii = 8; ii >= 0; ii--) {
+          rs.push(list[ii].value)
+        }
+      }
+    } else {
+      for (let ii = 8; ii >= 0; ii--) {
+        const list = this.cols[ii]
+        for (const cell of list) {
+          rs.push(cell.value)
+        }
+      }
+    }
+    this.InitCells()
+    for (const [index, value] of rs.entries()) {
+      this.cells[index].value = value
+    }
+    console.log('done Rotate')
   }
   SetValue(cell, value) {
     cell.value = value

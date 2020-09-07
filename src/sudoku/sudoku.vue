@@ -29,6 +29,10 @@
         <button @click="game.TrimMarkNakedPair()">显性数对2对</button>
         <button @click="game.FillNakedSingle()">填写标记唯余</button>
       </div>
+      <div>
+        <button @click="game.Rotate(true)">旋转-顺时针</button>
+        <button @click="game.Rotate(false)">旋转-逆时针</button>
+      </div>
     </div>
 
     <input class="hiddenText" type="text" ref="text" @keydown="FillCell($event)" />

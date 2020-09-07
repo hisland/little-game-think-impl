@@ -1,35 +1,4 @@
-const blocks = [
-  {
-    type: 'line',
-    indexList: [],
-    shape: [[4, 5, 6, 7], []],
-  },
-  {
-    type: 'z',
-    indexList: [],
-  },
-  {
-    type: 'rz',
-    indexList: [],
-  },
-  {
-    type: 'l',
-    indexList: [],
-  },
-  {
-    type: 'rl',
-    indexList: [],
-  },
-  {
-    type: 'square',
-    indexList: [],
-  },
-  {
-    type: 't',
-    indexList: [],
-  },
-]
-export default class Mine {
+export default class Sudoku {
   constructor() {
     this.cells = []
     this.blocks = []

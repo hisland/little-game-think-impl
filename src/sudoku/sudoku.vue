@@ -8,6 +8,11 @@
     </div>
     <div>
       <div>
+        <label>
+          <input type="checkbox" v-model="showAxis" />显示轴
+        </label>
+      </div>
+      <div>
         <button @click="init()">全空白</button>
         <button @click="resolve()">解题</button>
         <input type="text" v-model.trim="prefix" placeholder="名字备注" />
@@ -38,22 +43,21 @@
     <input class="hiddenText" type="text" ref="text" @keydown="FillCell($event)" />
 
     <div class="sudokuWrap">
-      <div class="cell first"></div>
-      <div class="hLine">
-        <div
-          class="cell axis"
-          :class="{hBold:(index0%3===0)}"
-          v-for="(vv0, index0) in 9"
-          :key="index0"
-        >{{vv0-1}}</div>
+      <div class="cell first" v-if="showAxis"></div>
+      <div class="hLine" v-if="showAxis">
+        <div class="line">
+          <div
+            class="cell axis"
+            :class="{hBold:(index0%3===0)}"
+            v-for="(vv0, index0) in 9"
+            :key="index0"
+          >{{vv0-1}}</div>
+        </div>
       </div>
-      <div class="vLine">
-        <div
-          class="cell axis"
-          :class="{vBold:(index0%3===0)}"
-          v-for="(vv0, index0) in 9"
-          :key="index0"
-        >{{vv0-1}}</div>
+      <div class="vLine" v-if="showAxis">
+        <div class="line" v-for="(vv0, index0) in 9" :key="index0">
+          <div class="cell axis" :class="{vBold:(index0%3===0)}">{{vv0-1}}</div>
+        </div>
       </div>
       <div class="grid">
         <div class="line" v-for="(vv0, index0) in game.rows" :key="index0">
@@ -92,6 +96,7 @@ export default {
       game: null,
       current: {},
       history,
+      showAxis: false,
     }
   },
   watch: {},
@@ -194,32 +199,23 @@ export default {
 <style scoped lang="scss">
 $border-color1: #2b2c2e;
 $border-color2: #aaabac;
+$cell-size: 48px;
 
 .sudokuWrap {
-  margin: 10px;
-  $size: 48px;
+  margin: 20px;
   display: flex;
   flex-wrap: wrap;
-  width: $size * 10;
+  width: $cell-size * 10 + 3px * 3;
   .cell {
-    width: $size;
-    height: $size;
-    flex: 0 0 auto;
+    width: $cell-size;
+    height: $cell-size;
+    flex: 1 1 auto;
     box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     &.first {
       border: 1px solid $border-color1;
       background: #eee;
-    }
-    &.hBold {
-      border-left: 3px solid $border-color1;
-      margin-left: -1px;
-    }
-    &.vBold {
-      border-top: 3px solid $border-color1;
-      margin-top: -1px;
+      width: $cell-size + 3px;
+      height: $cell-size + 3px;
     }
     &.currentLine {
       background: #e3eef4;
@@ -229,12 +225,15 @@ $border-color2: #aaabac;
     }
   }
   .hLine {
-    height: $size;
-    width: $size * 9;
     flex: 1 1 auto;
     display: flex;
     color: #ddd;
+    border: 3px solid $border-color1;
+    border-bottom: none;
     .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: #eee;
       border-top: 1px solid $border-color2;
       border-right: 1px solid $border-color2;
@@ -242,11 +241,15 @@ $border-color2: #aaabac;
     }
   }
   .vLine {
-    width: $size;
-    height: $size * 9;
-    flex: 0 0 auto;
+    width: $cell-size;
+    flex: 1 1 auto;
     color: #ddd;
+    border: 3px solid $border-color1;
+    border-right: none;
     .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: #eee;
       border-right: 1px solid $border-color2;
       border-bottom: 1px solid $border-color2;
@@ -255,14 +258,27 @@ $border-color2: #aaabac;
   }
   .grid {
     flex: 1 1 auto;
-    .line {
-      display: flex;
+    border: 3px solid $border-color1;
+  }
+
+  .line {
+    flex: 1 1 auto;
+    display: flex;
+    &:nth-child(3) .cell,
+    &:nth-child(6) .cell {
+      border-bottom: 3px solid $border-color1;
     }
-    .cell {
-      position: relative;
-      border-bottom: 1px solid $border-color2;
-      border-right: 1px solid $border-color2;
+  }
+  .cell {
+    border-right: 1px solid $border-color2;
+    border-bottom: 1px solid $border-color2;
+    &:nth-child(3),
+    &:nth-child(6) {
+      border-right: 3px solid $border-color1;
     }
+  }
+  .cell {
+    position: relative;
     .val1 {
       position: absolute;
       top: 0;

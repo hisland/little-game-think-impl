@@ -1,4 +1,4 @@
-export default class Mine {
+export default class GreedySnake {
   constructor(rows, cols) {
     this.rows = rows
     this.cols = cols
@@ -12,7 +12,7 @@ export default class Mine {
     let rid
     do {
       rid = Math.floor(Math.random() * max)
-    } while (this.snake.some(vv => vv === rid))
+    } while (this.snake.some((vv) => vv === rid))
     return rid
   }
   toIndex([xx, yy]) {
@@ -48,7 +48,7 @@ export default class Mine {
     const newHeadPos = this.getNewHeadPos()
     const [newHeadX, newHeadY] = newHeadPos
     const newHeadIndex = this.toIndex(newHeadPos)
-    if (this.snake.some(vv => vv === newHeadIndex)) {
+    if (this.snake.some((vv) => vv === newHeadIndex)) {
       return 'fail'
     }
     const { rows, cols } = this

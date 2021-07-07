@@ -1,4 +1,4 @@
-export default class Mine {
+export default class MineSweeper {
   constructor(rows, cols, mineCount) {
     this.rows = rows
     this.cols = cols
@@ -103,7 +103,7 @@ export default class Mine {
       let deepCount2 = 0
       const { checkSet } = this
       // 批量递归, 递归函数调用次数明显少很多
-      const deepCheck = indexList => {
+      const deepCheck = (indexList) => {
         deepCount2++
         for (const index2 of indexList) {
           if (checkSet.has(index2)) continue // 注意不是 break
@@ -136,7 +136,7 @@ export default class Mine {
       let deepCount2 = 0
       const { checkSet } = this
       // 单个递归, 递归函数会调用很多次
-      const deepCheck = index2 => {
+      const deepCheck = (index2) => {
         deepCount1++
         if (checkSet.has(index2)) return
         checkSet.add(index2)
@@ -164,8 +164,8 @@ export default class Mine {
   }
   checkAll() {
     const pass = this.cells
-      .filter(vv => vv.value === 9)
-      .every(vv => vv.mark === 'flag')
+      .filter((vv) => vv.value === 9)
+      .every((vv) => vv.mark === 'flag')
     if (pass) {
       this.showAll()
       this.gameState = 'accomplish'

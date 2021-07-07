@@ -1,4 +1,4 @@
-export default class Sudoku {
+export default class SudokuResolve {
   constructor() {
     this.cells = []
     this.blocks = []

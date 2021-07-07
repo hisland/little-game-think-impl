@@ -2,7 +2,7 @@ const blocks = [
   {
     type: 'line',
     indexList: [],
-    shape: [[4,5,6,7], []],
+    shape: [[4, 5, 6, 7], []],
   },
   {
     type: 'z',
@@ -29,7 +29,7 @@ const blocks = [
     indexList: [],
   },
 ]
-export default class Mine {
+export default class TetrisGame {
   constructor(rows, cols) {
     this.rows = rows
     this.cols = cols
@@ -51,22 +51,16 @@ export default class Mine {
   rotate() {
     if (this.nowBlock) {
     } else {
-      this.nowBlock = {
-
-      }
+      this.nowBlock = {}
     }
   }
   downOne() {
     if (this.nowBlock) {
     } else {
-      this.nowBlock = {
-
-      }
+      this.nowBlock = {}
     }
   }
-  moveLeftRight(num) {
-
-  }
+  moveLeftRight(num) {}
   randomBlock() {
     const rid = Math.floor(Math.random() * blocks.length)
     return blocks[rid]
@@ -83,8 +77,8 @@ export default class Mine {
   }
   checkAll() {
     const pass = this.cells
-      .filter(vv => vv.value === 9)
-      .every(vv => vv.mark === 'flag')
+      .filter((vv) => vv.value === 9)
+      .every((vv) => vv.mark === 'flag')
     if (pass) {
       this.showAll()
       this.gameState = 'accomplish'

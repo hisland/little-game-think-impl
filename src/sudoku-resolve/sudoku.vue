@@ -46,17 +46,12 @@
       <div class="cell first" v-if="showAxis"></div>
       <div class="hLine" v-if="showAxis">
         <div class="line">
-          <div
-            class="cell axis"
-            :class="{hBold:(index0%3===0)}"
-            v-for="(vv0, index0) in 9"
-            :key="index0"
-          >{{vv0-1}}</div>
+          <div class="cell axis" v-for="(vv0, index0) in 9" :key="index0">{{vv0-1}}</div>
         </div>
       </div>
       <div class="vLine" v-if="showAxis">
         <div class="line" v-for="(vv0, index0) in 9" :key="index0">
-          <div class="cell axis" :class="{vBold:(index0%3===0)}">{{vv0-1}}</div>
+          <div class="cell axis">{{vv0-1}}</div>
         </div>
       </div>
       <div class="grid">
@@ -65,7 +60,7 @@
             v-for="(vv1, index1) in vv0"
             :key="index1"
             class="cell"
-            :class="{hBold:(index1%3===0),vBold:(index0%3===0),currentCell:(vv1.index===current.index),currentLine:(vv1.row===current.row||vv1.col===current.col||vv1.block===current.block)}"
+            :class="{currentCell:(vv1.index===current.index),currentLine:(vv1.row===current.row||vv1.col===current.col||vv1.block===current.block)}"
             @click="SetFocus(vv1, $event)"
           >
             <div class="val1" v-if="vv1.value">{{vv1.value}}</div>
@@ -235,9 +230,9 @@ $cell-size: 48px;
       align-items: center;
       justify-content: center;
       background: #eee;
-      border-top: 1px solid $border-color2;
+      border-top: none;
       border-right: 1px solid $border-color2;
-      border-bottom: 1px solid $border-color2;
+      border-bottom: none;
     }
   }
   .vLine {
@@ -251,9 +246,9 @@ $cell-size: 48px;
       align-items: center;
       justify-content: center;
       background: #eee;
-      border-right: 1px solid $border-color2;
+      border-right: none;
       border-bottom: 1px solid $border-color2;
-      border-left: 1px solid $border-color2;
+      border-left: none;
     }
   }
   .grid {
@@ -268,6 +263,9 @@ $cell-size: 48px;
     &:nth-child(6) .cell {
       border-bottom: 3px solid $border-color1;
     }
+    &:nth-child(9) .cell {
+      border-bottom: none;
+    }
   }
   .cell {
     border-right: 1px solid $border-color2;
@@ -275,6 +273,9 @@ $cell-size: 48px;
     &:nth-child(3),
     &:nth-child(6) {
       border-right: 3px solid $border-color1;
+    }
+    &:nth-child(9) {
+      border-right: none;
     }
   }
   .cell {

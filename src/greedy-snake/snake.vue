@@ -1,13 +1,13 @@
 <template>
   <div class="wrap">
     <div>
-      <button v-if="gameState==='running'" @click="pause()">暂停</button>
-      <button v-else-if="gameState==='paused'" @click="resume()">继续</button>
-      <button v-else-if="gameState==='stoped'" @click="start()">开始</button>
+      <button v-if="gameState === 'running'" @click="pause()">暂停</button>
+      <button v-else-if="gameState === 'paused'" @click="resume()">继续</button>
+      <button v-else-if="gameState === 'stoped'" @click="start()">开始</button>
     </div>
-    <div class="cellWrap" :style="{width:wrapWidth}">
-      <template v-for="index0 in state.max">
-        <div class="cell" :class="cellClz(index0-1)" :key="index0"></div>
+    <div class="cellWrap" :style="{ width: wrapWidth }">
+      <template v-for="index0 in state.max" :key="index0">
+        <div class="cell" :class="cellClz(index0 - 1)"></div>
       </template>
     </div>
   </div>
@@ -41,7 +41,7 @@ export default {
         return 'food'
       } else if (this.state.snake[0] === index0) {
         return 'snakeHead'
-      } else if (this.state.snake.some(vv => vv === index0)) {
+      } else if (this.state.snake.some((vv) => vv === index0)) {
         return 'snake'
       }
     },

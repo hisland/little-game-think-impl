@@ -1,19 +1,26 @@
 <template>
   <div class="wrap">
     <div>
-      <button v-if="state.gameState==='running'" @click="DoFail()">认输☹️</button>
-      <button v-else-if="state.gameState==='accomplish'" @click="init()">再来😁</button>
-      <button v-else-if="state.gameState==='fail'" @click="init()">重来😁</button>
+      <button v-if="state.gameState === 'running'" @click="DoFail()">
+        认输☹️
+      </button>
+      <button v-else-if="state.gameState === 'accomplish'" @click="init()">
+        再来😁
+      </button>
+      <button v-else-if="state.gameState === 'fail'" @click="init()">
+        重来😁
+      </button>
     </div>
-    <div class="cellWrap" :style="{width:wrapWidth}">
-      <template v-for="(vv0, index0) in state.cells">
+    <div class="cellWrap" :style="{ width: wrapWidth }">
+      <template v-for="(vv0, index0) in state.cells" :key="index0">
         <div
           class="cell"
           :class="cellClz(vv0)"
-          :key="index0"
           @click="DoOpen(index0)"
           @contextmenu="DoFlag(index0, $event)"
-        >{{text(vv0)}}</div>
+        >
+          {{ text(vv0) }}
+        </div>
       </template>
     </div>
   </div>

@@ -300,8 +300,8 @@ $cell-size: 48px;
       display: flex;
       flex-wrap: wrap;
       .val2 {
-        width: 1/3 * 100%;
-        height: 1/3 * 100%;
+        width: math.div(1, 3) * 100%;
+        height: math.div(1, 3) * 100%;
         font-size: 12px;
         display: flex;
         align-items: center;

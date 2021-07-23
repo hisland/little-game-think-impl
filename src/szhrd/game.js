@@ -5,6 +5,7 @@ import shuffle from 'lodash-es/shuffle'
 export class Game {
   constructor(gridCount = 4) {
     this.gridCount = gridCount
+    this.pairCount = 0
     this.InitGrid()
   }
   InitGrid() {
@@ -20,6 +21,7 @@ export class Game {
       )
       if (canResolve) {
         this.list = randomList
+        this.pairCount = this.GetPairCount(this.list)
         break
       }
     }
@@ -44,6 +46,28 @@ export class Game {
   // https://horatiuvlad.com/unitbv/inteligenta_artificiala/2015/TilesSolvability.html
   CheckCanResolve(list, gridCount) {
     const is_border_odd = gridCount % 2 === 1
+    const pairCount = this.GetPairCount(list)
+    const is_pairCount_odd = pairCount % 2 === 1
+    if (is_border_odd && !is_pairCount_odd) {
+      return true
+    }
+    const emptyIndex = list.findIndex((cell) => cell.isEmpty)
+    const [, emptyY] = toPos(emptyIndex, gridCount)
+    // 原文从下往上数的奇偶性 与 索引从上往下+1数的奇偶性 **刚好相反**
+    const is_emptyY_odd = (emptyY + 1) % 2 === 1
+    if (!is_border_odd) {
+      // 原文 odd配even, 这里 odd配odd
+      if (is_pairCount_odd && is_emptyY_odd) {
+        return true
+      }
+      // 原文 even配odd, 这里 even配even
+      if (!is_pairCount_odd && !is_emptyY_odd) {
+        return true
+      }
+    }
+    return false
+  }
+  GetPairCount(list) {
     const nums = list.filter((vv) => !vv.isEmpty).map((cell) => cell.cellText)
     let pairCount = 0
     for (let ii = 0; ii < nums.length; ii++) {
@@ -53,22 +77,7 @@ export class Game {
         }
       }
     }
-    const is_pairCount_odd = pairCount % 2 === 1
-    if (is_border_odd && !is_pairCount_odd) {
-      return true
-    }
-    const emptyIndex = list.findIndex((cell) => cell.isEmpty)
-    const [, emptyY] = toPos(emptyIndex, gridCount)
-    const is_emptyY_odd = (emptyY + 1) % 2 === 1
-    if (!is_border_odd) {
-      if (is_pairCount_odd && is_emptyY_odd) {
-        return true
-      }
-      if (!is_pairCount_odd && !is_emptyY_odd) {
-        return true
-      }
-    }
-    return false
+    return pairCount
   }
   CheckResult() {
     for (const [index, cell] of this.list.entries()) {
@@ -86,6 +95,7 @@ export class Game {
     }
     const emptyIndex = this.list.findIndex((cell) => cell.isEmpty)
     const moved = this.Swap(cellIndex, emptyIndex)
+    this.pairCount = this.GetPairCount(this.list)
     if (moved) {
       this.isWin = this.CheckResult()
     }

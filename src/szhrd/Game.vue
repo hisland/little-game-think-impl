@@ -6,19 +6,22 @@
       <button @click="initGame(5)">5格</button>
       <button @click="initGame(6)">6格</button>
     </div>
-    <div v-if="game && game.isWin">win</div>
-    <div
-      class="cellWrap"
-      v-if="game"
-      :style="{ width: game.gridCount * 3 + 'em' }"
-    >
+    <div>
+      <div v-if="game">逆序数: {{ game.pairCount }}</div>
+      <div v-if="game && game.isWin">win</div>
       <div
-        class="cell"
-        v-for="(vv0, index0) in game.list"
-        :key="index0"
-        @click="game.Tap(vv0, index0)"
+        class="cellWrap"
+        v-if="game"
+        :style="{ width: game.gridCount * 3 + 'em' }"
       >
-        <span v-if="!vv0.isEmpty">{{ vv0.cellText }}</span>
+        <div
+          class="cell"
+          v-for="(vv0, index0) in game.list"
+          :key="index0"
+          @click="game.Tap(vv0, index0)"
+        >
+          <span v-if="!vv0.isEmpty">{{ vv0.cellText }}</span>
+        </div>
       </div>
     </div>
   </div>

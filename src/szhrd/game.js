@@ -1,4 +1,5 @@
-import { toIndex, toPos, swapIndex } from './util'
+import { toIndex, toPos } from './util'
+import { swapIndex } from './util'
 import shuffle from 'lodash-es/shuffle'
 
 export class Game {
@@ -8,38 +9,41 @@ export class Game {
   }
   InitGrid() {
     this.isWin = false
-    const list1 = this.RandomGrid(this.gridCount)
+    const serieList = this.SerieGrid(this.gridCount)
     while (true) {
-      const list2 = shuffle(list1)
-      const canResolve = this.CheckCanResolve(list2, this.gridCount)
+      const randomList = shuffle(serieList)
+      const canResolve = this.CheckCanResolve(randomList, this.gridCount)
       console.log(
         'canResolve: ',
         canResolve,
-        list2.map((vv) => vv.cellText)
+        randomList.map((vv) => vv.cellText)
       )
       if (canResolve) {
-        this.list = list2
+        this.list = randomList
         break
       }
     }
   }
-  RandomGrid(gridCount) {
+  SerieGrid(gridCount) {
     const list = []
     for (let yy = 0; yy < gridCount; yy++) {
       for (let xx = 0; xx < gridCount; xx++) {
-        const idx = toIndex(xx, yy, gridCount)
+        const index = toIndex(xx, yy, gridCount)
         const cell = {
-          isEmpty: xx === gridCount - 1 && yy === gridCount - 1, // 最后一格是空白
-          cellIndex: idx,
-          cellText: idx + 1,
+          isEmpty: false,
+          cellIndex: index,
+          cellText: index + 1,
         }
         list.push(cell)
       }
     }
+    list[gridCount * gridCount - 1].isEmpty = true // 最后一格是空白
     return list
   }
+  // 随机生成的数列只有 50% 几率可解, 此算法能检测是否可解
+  // https://horatiuvlad.com/unitbv/inteligenta_artificiala/2015/TilesSolvability.html
   CheckCanResolve(list, gridCount) {
-    const isBorderOdd = gridCount % 2 === 1
+    const is_border_odd = gridCount % 2 === 1
     const nums = list.filter((vv) => !vv.isEmpty).map((cell) => cell.cellText)
     let pairCount = 0
     for (let ii = 0; ii < nums.length; ii++) {
@@ -49,18 +53,18 @@ export class Game {
         }
       }
     }
-    const isPairCountOdd = pairCount % 2 === 1
-    if (isBorderOdd && !isPairCountOdd) {
+    const is_pairCount_odd = pairCount % 2 === 1
+    if (is_border_odd && !is_pairCount_odd) {
       return true
     }
     const emptyIndex = list.findIndex((cell) => cell.isEmpty)
     const [, emptyY] = toPos(emptyIndex, gridCount)
-    const isEmptyYOdd = (emptyY + 1) % 2 === 1
-    if (!isBorderOdd) {
-      if (isPairCountOdd && isEmptyYOdd) {
+    const is_emptyY_odd = (emptyY + 1) % 2 === 1
+    if (!is_border_odd) {
+      if (is_pairCount_odd && is_emptyY_odd) {
         return true
       }
-      if (!isPairCountOdd && !isEmptyYOdd) {
+      if (!is_pairCount_odd && !is_emptyY_odd) {
         return true
       }
     }

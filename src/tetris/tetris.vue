@@ -10,6 +10,7 @@
         <input type="text" v-model.trim="config.rows" style="width: 30px" />
       </span>
       <button @click="DoInit()">重来😁</button>
+      <span v-if="game && game.state === 'fail'">失败</span>
     </div>
     <template v-if="game">
       <div class="cellWrap" :style="{ width: wrapWidth }">

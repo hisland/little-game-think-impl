@@ -121,6 +121,8 @@ export default class TetrisGame {
     this.shape1Set = new Set(list)
   }
   Rotate() {
+    if (this.state === 'fail') return false
+
     const { shapeX, shapeY } = this
     const newBlocks = RotateRelativePos(this.shape1.blocks)
     const movedAbsPos = GetShapeAbsPos(newBlocks, shapeX, shapeY)
@@ -134,6 +136,7 @@ export default class TetrisGame {
     }
   }
   CanMove(dir) {
+    if (this.state === 'fail') return false
     // debugger
     let { shapeX, shapeY } = this
     if (dir === 'left') shapeX += -1
@@ -165,12 +168,16 @@ export default class TetrisGame {
       this.shapeY++
       this.RefreshShape()
     } else {
-      console.log('stack')
       for (const absIndex of this.shape1Set) {
         this.fills.add(absIndex)
       }
-      this.RemoveFullLines()
-      this.NextShape()
+      if (this.shapeY <= 0) {
+        console.log('game over')
+        this.state = 'fail'
+      } else {
+        this.RemoveFullLines()
+        this.NextShape()
+      }
     }
   }
   RemoveFullLines() {

@@ -21,10 +21,14 @@ export default function dirListPlugin() {
         const url_decoded = decodeURI(url)
         const try_pwd = path.join(__dirname, url_decoded)
         if (fs.existsSync(try_pwd) && fs.statSync(try_pwd).isDirectory()) {
+          if (!url_decoded.endsWith('/')) {
+            res.writeHead(301, { Location: path.join(url_decoded, '/') })
+            res.end()
+            return
+          }
           const list1 = fs.readdirSync(try_pwd, {
             withFileTypes: true,
           })
-
           const hasIndex = list1.some((vv) => vv.name === 'index.html')
           if (hasIndex) {
             res.writeHead(301, {

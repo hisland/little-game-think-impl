@@ -1,21 +1,30 @@
 <template>
   <div class="wrap">
     <div>
-      <button v-if="state.gameState === 'running'" @click="DoFail()">
-        认输☹️
-      </button>
-      <button v-else-if="state.gameState === 'accomplish'" @click="init()">
-        再来😁
-      </button>
-      <button v-else-if="state.gameState === 'fail'" @click="init()">
-        重来😁
-      </button>
+      <span>
+        <span>宽度</span>
+        <input type="text" v-model.trim="config.cols" style="width: 30px" />
+      </span>
+      <span>
+        <span>高度</span>
+        <input type="text" v-model.trim="config.rows" style="width: 30px" />
+      </span>
+      <button @click="DoInit()">重来😁</button>
     </div>
-    <div class="cellWrap" :style="{ width: wrapWidth }">
-      <template v-for="(vv0, index0) in state.cells" :key="index0">
-        <div class="cell" :class="{ has: vv0.has }"></div>
-      </template>
-    </div>
+    <template v-if="game">
+      <div class="cellWrap" :style="{ width: wrapWidth }">
+        <div
+          v-for="(vv1, index1) in game.max"
+          :key="index1"
+          class="cell"
+          :class="{
+            fill: game.fills.has(index1) || game.shape1Set.has(index1),
+          }"
+        >
+          {{ index1 }}
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 <script>
@@ -25,10 +34,10 @@ export default {
   data() {
     return {
       config: {
+        cols: 15,
         rows: 20,
-        cols: 10,
       },
-      state: {},
+      game: null,
     }
   },
   watch: {},
@@ -39,12 +48,43 @@ export default {
     },
   },
   methods: {
-    init() {
-      this.state = new GameCore(this.config.rows, this.config.cols)
+    DoInit() {
+      this.game = new GameCore(this.config.rows, this.config.cols)
+    },
+
+    SetupKeyDown() {
+      window.addEventListener('keydown', this.EventHandle)
+    },
+    TeardownKeyDown() {
+      window.removeEventListener('keydown', this.EventHandle)
+    },
+    EventHandle(ee) {
+      if (!this.game) return
+      // console.log('ee.keyCode: ', ee.keyCode)
+      if (ee.keyCode === 27) {
+        // esc
+        this.game.ToggleRun()
+      } else if (ee.keyCode === 32) {
+        // blank
+        this.game.FillShape()
+      } else if (ee.keyCode === 37) {
+        // left
+        this.game.MoveShapeLeft()
+      } else if (ee.keyCode === 38) {
+        // up
+        this.game.Rotate()
+      } else if (ee.keyCode === 39) {
+        // right
+        this.game.MoveShapeRight()
+      } else if (ee.keyCode === 40) {
+        // down
+        this.game.MoveShapeDown()
+      }
     },
   },
   mounted() {
-    this.init()
+    this.DoInit()
+    this.SetupKeyDown()
   },
 }
 </script>
@@ -61,10 +101,13 @@ export default {
   box-sizing: border-box;
   cursor: default;
   user-select: none;
-  background-color: #999;
+  background-color: #eee;
   margin: 0 2px 2px 0;
-  &.has {
+  &.fill {
     background-color: green;
   }
+  font-size: 12px;
+  font-family: serif;
+  color: #ccc;
 }
 </style>

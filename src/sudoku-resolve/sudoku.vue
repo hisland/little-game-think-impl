@@ -2,15 +2,13 @@
   <div class="wrap" v-if="game">
     <div class="history">
       <div v-for="(vv0, index0) in history" :key="index0" class="line">
-        <span @click="RestoreHistory(vv0)">{{index0+1}}. {{vv0}}</span>
+        <span @click="RestoreHistory(vv0)">{{ index0 + 1 }}. {{ vv0 }}</span>
         <span class="del" @click="DelHistory(index0)">x</span>
       </div>
     </div>
     <div>
       <div>
-        <label>
-          <input type="checkbox" v-model="showAxis" />显示轴
-        </label>
+        <label> <input type="checkbox" v-model="showAxis" />显示轴 </label>
       </div>
       <div>
         <button @click="init()">全空白</button>
@@ -40,18 +38,25 @@
       </div>
     </div>
 
-    <input class="hiddenText" type="text" ref="text" @keydown="FillCell($event)" />
+    <input
+      class="hiddenText"
+      type="text"
+      ref="text"
+      @keydown="FillCell($event)"
+    />
 
     <div class="sudokuWrap">
       <div class="cell first" v-if="showAxis"></div>
       <div class="hLine" v-if="showAxis">
         <div class="line">
-          <div class="cell axis" v-for="(vv0, index0) in 9" :key="index0">{{vv0-1}}</div>
+          <div class="cell axis" v-for="(vv0, index0) in 9" :key="index0">
+            {{ vv0 - 1 }}
+          </div>
         </div>
       </div>
       <div class="vLine" v-if="showAxis">
         <div class="line" v-for="(vv0, index0) in 9" :key="index0">
-          <div class="cell axis">{{vv0-1}}</div>
+          <div class="cell axis">{{ vv0 - 1 }}</div>
         </div>
       </div>
       <div class="grid">
@@ -60,13 +65,19 @@
             v-for="(vv1, index1) in vv0"
             :key="index1"
             class="cell"
-            :class="{currentCell:(vv1.index===current.index),currentLine:(vv1.row===current.row||vv1.col===current.col||vv1.block===current.block)}"
+            :class="{
+              currentCell: vv1.index === current.index,
+              currentLine:
+                vv1.row === current.row ||
+                vv1.col === current.col ||
+                vv1.block === current.block,
+            }"
             @click="SetFocus(vv1, $event)"
           >
-            <div class="val1" v-if="vv1.value">{{vv1.value}}</div>
+            <div class="val1" v-if="vv1.value">{{ vv1.value }}</div>
             <div class="temp" v-else>
               <div class="val2" v-for="(vv0, index0) in 9" :key="index0">
-                <span v-if="vv1.tmpValues.has(vv0)">{{vv0}}</span>
+                <span v-if="vv1.tmpValues.has(vv0)">{{ vv0 }}</span>
               </div>
             </div>
           </div>
@@ -192,6 +203,8 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+@use "sass:math";
+
 $border-color1: #2b2c2e;
 $border-color2: #aaabac;
 $cell-size: 48px;

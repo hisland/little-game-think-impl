@@ -47,6 +47,14 @@ export default class Game {
       value: rnd_value,
     })
   }
+  setCellIndex(cell, index) {
+    cell.index = index
+    const [xx, yy] = toPos(index, this.cols)
+    cell.style = {
+      left: xx * 55 + 5 + 'px',
+      top: yy * 55 + 5 + 'px',
+    }
+  }
   randomInt() {
     const has_index = this.cells.map((vv) => vv.index)
     console.log('has_index: ', has_index)
@@ -148,29 +156,19 @@ export default class Game {
       let prev_cell = this.cells.find((vv) => vv.index === prev_index)
       for (let ii = 1; ii < line.length; ii++) {
         const now_index = line[ii]
-        const cell = this.cells.find((vv) => vv.index === now_index)
+        const now_cell = this.cells.find((vv) => vv.index === now_index)
         // debugger
-        if (cell) {
+        if (now_cell) {
           if (!prev_cell) {
-            cell.index = prev_index
-            const [xx, yy] = toPos(prev_index, this.cols)
-            cell.style = {
-              left: xx * 55 + 5 + 'px',
-              top: yy * 55 + 5 + 'px',
-            }
-            prev_cell = cell
+            this.setCellIndex(now_cell, prev_index)
+            prev_cell = now_cell
             moved = true
-          } else if (prev_cell.value === cell.value) {
+          } else if (prev_cell.value === now_cell.value) {
             const idx = this.cells.findIndex((vv) => vv === prev_cell)
             this.cells.splice(idx, 1)
 
-            cell.value += prev_cell.value
-            cell.index = prev_index
-            const [xx, yy] = toPos(prev_index, this.cols)
-            cell.style = {
-              left: xx * 55 + 5 + 'px',
-              top: yy * 55 + 5 + 'px',
-            }
+            now_cell.value += prev_cell.value
+            this.setCellIndex(now_cell, prev_index)
 
             prev += 1
             prev_index = line[prev]

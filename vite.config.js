@@ -12,13 +12,13 @@ export default defineConfig({
   optimizeDeps: {
     entries: [],
   },
-  root: resolve(__dirname, 'src/flash-dot'),
-  base: './',
+  // root: resolve(__dirname, 'src/flash-dot'),
+  // base: './',
   build: {
-    // rollupOptions: {
-    //   input: {
-    //     // 'mine-sweeper': resolve(__dirname, 'src/mine-sweeper/index.html'),
-    //   },
-    // },
+    rollupOptions: {
+      input: {
+        // 'mine-sweeper': resolve(__dirname, 'src/mine-sweeper/index.html'),
+      },
+    },
   },
 })

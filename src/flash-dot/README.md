@@ -1,7 +1,6 @@
 ## flash-dot
 
-1. `clone` 本仓库
-2. `npm install`
-3. `npm run dev` 可本地进行开发
-4. `npm run build` 产生 dist 目录
-5. 用 http 服务器使使浏览器能访问 dist/index.html 即可
+玩法: 根据配置随机生成圆点并闪现指定秒数,
+然后回答出每种颜色的数量
+
+分配成 N 组, 每组 N 种颜色, 每种颜色 N 个数量

@@ -76,7 +76,7 @@
               class="input"
             >
               <option
-                v-for="ii in deciRange(6, 10)"
+                v-for="ii in deciRange(5, 20)"
                 :value="ii"
                 :key="ii"
               >
@@ -124,7 +124,28 @@
                 ></div>
               </template>
             </div>
+           
           </template>
+           <div v-if="showAnswer" style="background: #fff; padding:5px;">
+            <table class="table">
+              <tr>
+              <th>组数</th>
+              <th>红色</th>
+              <th>黄色</th>
+              <th>蓝色</th>
+              </tr>
+              <template  v-for="(v,index) in answerList" 
+                :key="v">
+                <tr v-if="index==questionIndex">
+                <td>第{{index+1}}组</td>
+                <td>{{v.red}}</td>
+                <td>{{v.yellow}}</td>
+                <td>{{v.blue}}</td>
+              </tr>
+              </template>
+              
+            </table>
+           </div>
         </div>
       </div>
       <div class="btns">
@@ -138,6 +159,7 @@
           v-else
           @click="state = 2"
         >显示答案</button>
+        <button @click="showAnswer = true && state != 2">当前答案</button>
       </div>
     </div>
     <div
@@ -198,6 +220,7 @@ export default {
       questionList: [],
       questionIndex: 0,
       isShow: false,
+      showAnswer:false,
       timer: null,
       answerList: [],
     };
@@ -221,6 +244,9 @@ export default {
       //生成小数
       const list = [];
       for (let ii = from; ii <= to; ii++) {
+        if (ii%5 != 0){//5的倍数
+          continue;
+        }
         list.push(ii / 10);
       }
       return list;
@@ -278,11 +304,12 @@ export default {
       if (this.isShow) return;
       const { timeCount } = this.config;
       if (this.questionIndex < this.questionList.length - 1) {
-        console.log(11);
         this.questionIndex++;
         this.isShow = true;
+        this.showAnswer = false;//重置答案
         this.timer = setTimeout(() => {
           this.isShow = false;
+          
           if (this.questionIndex === this.questionList.length - 1) {
             this.timer = -1;
           }

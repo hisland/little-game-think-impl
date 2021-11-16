@@ -46,14 +46,14 @@
           <div class="line">
             <span>显示时间(s)</span>
             <select v-model.trim="config.timeCount" class="input">
-              <option v-for="ii in intRange(1, 6)" :value="ii" :key="ii">
+              <option v-for="ii in deciRange(0.5, 2)" :value="ii" :key="ii">
                 {{ ii }}
               </option>
             </select>
           </div>
-          <div>{{ maxCols }}</div>
+          <!-- <div>{{ maxCols }}</div>
           <div>{{ maxRows }}</div>
-          <div>{{ maxIndex }}</div>
+          <div>{{ maxIndex }}</div> -->
         </div>
       </div>
       <div class="btns">
@@ -71,6 +71,24 @@
               </template>
             </div>
           </template>
+          <div v-if="showAnswer" style="background: #fff; padding: 5px">
+            <table class="table">
+              <tr>
+                <th>组数</th>
+                <th>红色</th>
+                <th>黄色</th>
+                <th>蓝色</th>
+              </tr>
+              <template v-for="(v, index) in answerList" :key="v">
+                <tr v-if="index == questionIndex">
+                  <td>第{{ index + 1 }}组</td>
+                  <td>{{ v.red }}</td>
+                  <td>{{ v.yellow }}</td>
+                  <td>{{ v.blue }}</td>
+                </tr>
+              </template>
+            </table>
+          </div>
         </div>
       </div>
       <div class="btns">
@@ -80,13 +98,32 @@
         >
           下一组({{ questionIndex + 1 }}/{{ questionList.length }})
         </button>
-        <button v-else @click="state = 2">显示答案</button>
+        <button v-else @click="state = 2">全部答案</button>
+        <button @click="showAnswer = true">
+          当前答案({{ questionIndex + 1 }})
+        </button>
       </div>
     </div>
     <div class="page" v-if="state === 2">
       <div class="pagetop">
-        答案是: {{ questionList.map((vv) => vv.answer).join(', ') }}
+        <div style="flex: 1 1 auto; display: flex; align-items: center">
+          <table class="table">
+            <tr>
+              <th>组数</th>
+              <th>红色</th>
+              <th>黄色</th>
+              <th>蓝色</th>
+            </tr>
+            <tr v-for="(v, index) in answerList" :key="v">
+              <td>第{{ index + 1 }}组</td>
+              <td>{{ v.red }}</td>
+              <td>{{ v.yellow }}</td>
+              <td>{{ v.blue }}</td>
+            </tr>
+          </table>
+        </div>
       </div>
+
       <div class="btns">
         <button @click="state = 0">返回首页</button>
       </div>
@@ -101,15 +138,19 @@ export default {
   components: {},
   data() {
     const saved = localStorage.getItem('flash-dot-settings')
-    const config = saved
-      ? JSON.parse(saved)
-      : {
-          groupCount: 3,
-          dotMinCount: 3,
-          dotMaxCount: 10,
-          colorCount: 1,
-          timeCount: 1,
-        }
+    const defaultConfig = {
+      groupCount: 3,
+      dotMinCount: 3,
+      dotMaxCount: 10,
+      colorCount: 1,
+      timeCount: 1,
+    }
+    let config = defaultConfig
+    try {
+      if (saved) {
+        config = JSON.parse(saved)
+      }
+    } catch (error) {}
     return {
       config,
       state: 0,
@@ -119,7 +160,9 @@ export default {
       questionList: [],
       questionIndex: 0,
       isShow: false,
+      showAnswer: false,
       timer: null,
+      answerList: [],
     }
   },
   watch: {},
@@ -137,13 +180,26 @@ export default {
       }
       return list
     },
+    deciRange(from, to) {
+      //生成小数
+      const list = []
+      for (let ii = from; ii <= to; ii += 0.5) {
+        list.push(ii)
+      }
+      return list
+    },
     start() {
       localStorage.setItem('flash-dot-settings', JSON.stringify(this.config))
 
       const { groupCount, dotMinCount, dotMaxCount, colorCount } = this.config
       const { maxCols, maxRows, maxIndex } = this
+
       const list = []
+      const list2 = []
       for (let ii = 0; ii < groupCount; ii++) {
+        let redCount = 0 //计数
+        let yellowCount = 0
+        let blueCount = 0
         const rows = []
         for (let ii = 0; ii < maxRows; ii++) {
           rows[ii] = new Array(maxCols)
@@ -155,17 +211,27 @@ export default {
           if (!set2.has(idx)) {
             set2.add(idx)
             const [xx, yy] = toPos(idx, maxCols)
-            const color = randomInt(1, colorCount)
-            rows[yy][xx] = color === 1 ? 'red' : color === 2 ? 'pink' : 'purple'
+            const color = randomInt(1, colorCount) //颜色值
+            if (color == 1) {
+              redCount++
+            } else if (color == 2) {
+              yellowCount++
+            } else {
+              blueCount++
+            }
+            rows[yy][xx] = color === 1 ? 'red' : color === 2 ? 'yellow' : 'blue'
           }
         }
-
+        console.log(redCount + ',' + yellowCount + ',' + blueCount)
         list.push({
           answer: set2.size,
           rows,
         })
+        list2.push({ red: redCount, yellow: yellowCount, blue: blueCount })
       }
       this.questionList = list
+      this.answerList = list2
+      console.log(list2)
       this.questionIndex = -1
       this.state = 1
       this.next()
@@ -174,11 +240,12 @@ export default {
       if (this.isShow) return
       const { timeCount } = this.config
       if (this.questionIndex < this.questionList.length - 1) {
-        console.log(11)
         this.questionIndex++
         this.isShow = true
+        this.showAnswer = false //重置答案
         this.timer = setTimeout(() => {
           this.isShow = false
+
           if (this.questionIndex === this.questionList.length - 1) {
             this.timer = -1
           }
@@ -200,6 +267,29 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+.table {
+  table-layout: fixed;
+  width: 80%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 3px solid purple;
+  tr:nth-child(odd) {
+    background: #f4f4f4;
+  }
+  th {
+    vertical-align: baseline;
+    padding: 10px 10px 10px 10px;
+    background-color: #3f3f3f;
+    border: 1px solid #3f3f3f;
+    text-align: left;
+    color: #fff;
+  }
+  td {
+    vertical-align: text-top;
+    padding: 9px 9px 9px 9px;
+    border: 1px solid #aaa;
+  }
+}
 .wrap {
   position: absolute;
   top: 0;
@@ -285,11 +375,11 @@ export default {
     &.red {
       background: red;
     }
-    &.pink {
-      background: pink;
+    &.yellow {
+      background: yellow;
     }
-    &.purple {
-      background: purple;
+    &.blue {
+      background: blue;
     }
   }
 }

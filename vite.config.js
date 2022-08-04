@@ -13,10 +13,11 @@ export default defineConfig({
     entries: [],
   },
   // root: resolve(__dirname, 'src/flash-dot'),
-  // base: './',
+  base: './',
   build: {
     rollupOptions: {
       input: {
+        'flash-dot': resolve(__dirname, 'src/flash-dot/index.html'),
         // 'mine-sweeper': resolve(__dirname, 'src/mine-sweeper/index.html'),
       },
     },
